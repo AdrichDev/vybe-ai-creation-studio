@@ -17,7 +17,7 @@ export const recentProjects = [
     id: 3,
     title: "Urban Streetwear Drop",
     date: "May 21, 2026",
-    type: "Agent-Generated",
+    type: "Image",
     img: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&q=80&auto=format&fit=crop",
   },
   {
@@ -26,6 +26,20 @@ export const recentProjects = [
     date: "May 18, 2026",
     type: "Video",
     img: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=900&q=80&auto=format&fit=crop",
+  },
+  {
+    id: 5,
+    title: "Barbershop · Neon Editorial",
+    date: "May 15, 2026",
+    type: "Image",
+    img: "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=900&q=80&auto=format&fit=crop",
+  },
+  {
+    id: 6,
+    title: "Porsche · Golden Hour",
+    date: "May 12, 2026",
+    type: "Video",
+    img: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=900&q=80&auto=format&fit=crop",
   },
 ];
 
@@ -64,5 +78,10 @@ export const assetsLibrary = {
     "https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&q=80",
     "https://images.unsplash.com/photo-1561070791-2526d30994b8?w=800&q=80",
     "https://images.unsplash.com/photo-1620207418302-439b387441b0?w=800&q=80",
+  ],
+  Exports: [
+    "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&q=80",
+    "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80",
+    "https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=800&q=80",
   ],
 };

@@ -9,6 +9,7 @@ import { PhotoStudio } from "@/components/vybe/sections/PhotoStudio";
 import { VideoStudio } from "@/components/vybe/sections/VideoStudio";
 import { Assets } from "@/components/vybe/sections/Assets";
 import { Settings } from "@/components/vybe/sections/Settings";
+import { AppStateProvider } from "@/components/vybe/AppState";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,6 +29,7 @@ function Index() {
   const openExport = () => setExportOpen(true);
 
   return (
+    <AppStateProvider goToSettings={() => setActive("Settings")}>
     <div className="h-screen w-screen flex flex-col bg-[#0A0A0A] text-white overflow-hidden">
       <TopBar />
       <div className="flex-1 flex min-h-0">
@@ -43,5 +45,6 @@ function Index() {
       <StatusBar />
       <ExportModal open={exportOpen} onClose={() => setExportOpen(false)} />
     </div>
+    </AppStateProvider>
   );
 }

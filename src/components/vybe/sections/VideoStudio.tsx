@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Play, Pause, Mic, Film, AudioLines, Upload, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+import { useAppState, ProviderSelector, PROVIDER_LABEL } from "@/components/vybe/AppState";
 
 function Dropzone({
   label,
@@ -72,6 +74,8 @@ function VoiceWave() {
 }
 
 export function VideoStudio({ onExport }: { onExport: () => void }) {
+  const { apiKeys, videoProvider, setVideoProvider, goToSettings } = useAppState();
+  const hasKey = Boolean(apiKeys[videoProvider]);
   const [media, setMedia] = useState<string | null>(
     "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80"
   );
@@ -80,6 +84,26 @@ export function VideoStudio({ onExport }: { onExport: () => void }) {
   const [listening, setListening] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [rendering, setRendering] = useState(false);
+  const [statusText, setStatusText] = useState<string | null>(null);
+
+  const handleRender = () => {
+    if (!hasKey) {
+      toast.error(`Configure ${PROVIDER_LABEL[videoProvider]} API Key in Settings`, {
+        action: { label: "Open Settings", onClick: goToSettings },
+      });
+      return;
+    }
+    setRendering(true);
+    setStatusText("Rendering...");
+    setTimeout(() => {
+      setRendering(false);
+      setStatusText("Render Complete");
+      setTimeout(() => {
+        setStatusText(null);
+        onExport();
+      }, 1200);
+    }, 1800);
+  };
 
   return (
     <div className="h-full grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 p-6">
@@ -89,6 +113,7 @@ export function VideoStudio({ onExport }: { onExport: () => void }) {
           <h2 className="text-sm font-semibold tracking-tight">Inputs</h2>
           <p className="text-xs text-zinc-500">Drop your media & voice.</p>
         </div>
+        <ProviderSelector value={videoProvider} onChange={setVideoProvider} />
         <Dropzone
           label="Image / Video Base"
           hint="MP4 · MOV · PNG · JPG"
@@ -120,7 +145,7 @@ export function VideoStudio({ onExport }: { onExport: () => void }) {
         <div className="flex-1 grid place-items-center bg-[#0F0F0F] vybe-border rounded-xl p-4 min-h-[380px] relative">
           <div className="absolute top-4 left-4 flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md vybe-border z-10">
             <span className={`w-1.5 h-1.5 rounded-full ${rendering ? "vybe-gradient animate-pulse" : "bg-emerald-400"}`} />
-            <span className="text-[11px] font-medium">{rendering ? "Preparing your video..." : "Ready to render"}</span>
+            <span className="text-[11px] font-medium">{statusText ?? (rendering ? "Preparing your video..." : "Ready to render")}</span>
           </div>
           <div className="relative aspect-[9/16] h-full max-h-[520px] rounded-xl overflow-hidden vybe-border bg-black">
             {media ? (
@@ -175,7 +200,7 @@ export function VideoStudio({ onExport }: { onExport: () => void }) {
             <input
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe the video you want to create..."
+              placeholder={`Describe the video you want ${PROVIDER_LABEL[videoProvider]} to create...`}
               className="flex-1 bg-transparent text-sm text-white placeholder:text-zinc-600 focus:outline-none py-2"
             />
           )}
@@ -183,16 +208,15 @@ export function VideoStudio({ onExport }: { onExport: () => void }) {
             <Upload className="w-4 h-4" />
           </button>
           <button
-            onClick={() => {
-              setRendering(true);
-              setTimeout(() => {
-                setRendering(false);
-                onExport();
-              }, 1800);
-            }}
-            className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl vybe-gradient text-black font-semibold text-sm transition-all duration-300 ease-in-out active:scale-95 hover:shadow-[0_0_30px_-5px_rgba(0,210,255,0.5)]"
+            onClick={handleRender}
+            disabled={!hasKey}
+            className={`shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 ease-in-out ${
+              hasKey
+                ? "vybe-gradient text-black active:scale-95 hover:shadow-[0_0_30px_-5px_rgba(0,210,255,0.5)] cursor-pointer"
+                : "bg-zinc-800/60 text-zinc-500 opacity-60 cursor-not-allowed"
+            }`}
           >
-            <Sparkles className="w-4 h-4" /> Render Video
+            <Sparkles className="w-4 h-4" /> {hasKey ? "Render Video" : "Configure API Key in Settings"}
           </button>
         </div>
       </div>

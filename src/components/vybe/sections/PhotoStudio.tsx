@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Sparkles, Upload, Mic, ImagePlus, Layers, GitCompareArrows, ZoomIn } from "lucide-react";
+import { toast } from "sonner";
+import { useAppState, ProviderSelector, PROVIDER_LABEL } from "@/components/vybe/AppState";
 
 function Dropzone({
   label,
@@ -81,6 +83,8 @@ function VoiceWave() {
 }
 
 export function PhotoStudio({ onExport }: { onExport: () => void }) {
+  const { apiKeys, photoProvider, setPhotoProvider, goToSettings } = useAppState();
+  const hasKey = Boolean(apiKeys[photoProvider]);
   const [base, setBase] = useState<string | null>(
     "https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?w=900&q=80"
   );
@@ -89,6 +93,23 @@ export function PhotoStudio({ onExport }: { onExport: () => void }) {
   const [listening, setListening] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [statusText, setStatusText] = useState<string | null>(null);
+
+  const handleGenerate = () => {
+    if (!hasKey) {
+      toast.error(`Configure ${PROVIDER_LABEL[photoProvider]} API Key in Settings`, {
+        action: { label: "Open Settings", onClick: goToSettings },
+      });
+      return;
+    }
+    setProcessing(true);
+    setStatusText("Generating...");
+    setTimeout(() => {
+      setProcessing(false);
+      setStatusText("Preview Ready");
+      setTimeout(() => setStatusText(null), 1800);
+    }, 1800);
+  };
 
   const samples = [
     "https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?w=900&q=80",
@@ -104,6 +125,7 @@ export function PhotoStudio({ onExport }: { onExport: () => void }) {
           <h2 className="text-sm font-semibold tracking-tight">Inputs</h2>
           <p className="text-xs text-zinc-500">Drop your base & references.</p>
         </div>
+        <ProviderSelector value={photoProvider} onChange={setPhotoProvider} />
         <Dropzone
           label="Base Image"
           hint="PNG · JPG · up to 50MB"
@@ -160,7 +182,7 @@ export function PhotoStudio({ onExport }: { onExport: () => void }) {
 
           <div className="absolute top-4 left-4 flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md vybe-border">
             <span className={`w-1.5 h-1.5 rounded-full ${processing ? "vybe-gradient animate-pulse" : "bg-emerald-400"}`} />
-            <span className="text-[11px] font-medium">{processing ? "Processing your request..." : "Preview"}</span>
+            <span className="text-[11px] font-medium">{statusText ?? (processing ? "Processing your request..." : "Preview")}</span>
           </div>
 
           <div className="absolute top-4 right-4 flex items-center gap-1.5">
@@ -196,7 +218,7 @@ export function PhotoStudio({ onExport }: { onExport: () => void }) {
             <input
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe what you want to change..."
+              placeholder={`Describe what you want ${PROVIDER_LABEL[photoProvider]} to create or edit...`}
               className="flex-1 bg-transparent text-sm text-white placeholder:text-zinc-600 focus:outline-none py-2"
             />
           )}
@@ -204,13 +226,15 @@ export function PhotoStudio({ onExport }: { onExport: () => void }) {
             <Upload className="w-4 h-4" />
           </button>
           <button
-            onClick={() => {
-              setProcessing(true);
-              setTimeout(() => setProcessing(false), 1800);
-            }}
-            className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl vybe-gradient text-black font-semibold text-sm transition-all duration-300 ease-in-out active:scale-95 hover:shadow-[0_0_30px_-5px_rgba(0,210,255,0.5)]"
+            onClick={handleGenerate}
+            disabled={!hasKey}
+            className={`shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 ease-in-out ${
+              hasKey
+                ? "vybe-gradient text-black active:scale-95 hover:shadow-[0_0_30px_-5px_rgba(0,210,255,0.5)] cursor-pointer"
+                : "bg-zinc-800/60 text-zinc-500 opacity-60 cursor-not-allowed"
+            }`}
           >
-            <Sparkles className="w-4 h-4" /> Generate
+            <Sparkles className="w-4 h-4" /> {hasKey ? "Generate" : "Configure API Key in Settings"}
           </button>
         </div>
       </div>

@@ -7,12 +7,6 @@ export function StatusBar() {
         <span className="text-zinc-700">•</span>
         <span className="text-zinc-400">Veo 3.1 & GPT-5.5 Ready</span>
       </div>
-      <div className="flex items-center gap-3">
-        <span>3 Pipelines Active</span>
-        <div className="relative w-40 h-1 rounded-full bg-white/[0.05] overflow-hidden">
-          <div className="absolute inset-y-0 left-0 w-1/3 vybe-gradient rounded-full animate-vybe-scan" />
-        </div>
-      </div>
     </footer>
   );
 }
